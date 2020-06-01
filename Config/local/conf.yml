@@ -1,0 +1,11 @@
+# Server configurations
+# Go Server
+server:
+  host: "localhost"
+  port: 8080
+
+# Database credentials
+# cassandra
+database:
+  host: "localhost"
+  port: 9042

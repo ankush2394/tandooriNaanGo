@@ -5,6 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
+	"tandoorinaan/golang/tandoorinaan-api/Config/local"
 	"tandoorinaan/golang/tandoorinaan-api/User"
 )
 
@@ -28,9 +30,12 @@ func main() {
 
 	r.Use(loggingMiddleware)
 
-	errHttp := http.ListenAndServe("localhost:8080", r)
+	env := getEnvironment()
+	appHost := env.Server.Host
+	appPort := env.Server.Port
+	errHttp := http.ListenAndServe(appHost+":"+strconv.Itoa(appPort), r)
 	if errHttp != nil {
-		log.Fatal("error connecting to localhost")
+		log.Fatal("error connecting to "+ appHost)
 	}
 
 }
@@ -41,4 +46,8 @@ type heartbeatResponse struct {
 }
 func heartbeat(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(heartbeatResponse{Status: "OK", Code: 200})
+}
+
+func getEnvironment() *local.Config{
+	return local.Instance()
 }
