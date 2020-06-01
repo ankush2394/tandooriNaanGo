@@ -22,7 +22,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	userId,err := strconv.Atoi(vars["user_id"])
 	if err != nil {
 		w.WriteHeader(500)
-		json.NewEncoder(w).Encode("error here ...")
+		json.NewEncoder(w).Encode("invalid user id  ...")
 	}
 
 	var  desc,name string

@@ -11,14 +11,11 @@ import (
 var (
 	once sync.Once
 	cql  *Cassandra
-	cassandraKeySpace = "user"
-
 )
+
 type Cassandra struct {
 	cluster    *gocql.ClusterConfig
 	Session    *gocql.Session
-	Consistency gocql.Consistency
-
 }
 
 func Instance() *Cassandra {
@@ -34,15 +31,14 @@ func NewCqlConnection() *Cassandra {
 	var err error
 	cql := Cassandra{}
 	cql.cluster = gocql.NewCluster("127.0.0.1") //contains list of cassandra machines in a cluster...
-	cql.Consistency = gocql.Quorum
-	cql.cluster.Keyspace = cassandraKeySpace
+	cql.cluster.Consistency = gocql.One                //only one node in cluster
 	cql.cluster.Timeout = 2000 * time.Millisecond
 	cql.cluster.ConnectTimeout = 2000 * time.Millisecond
 	cql.Session, err = cql.cluster.CreateSession()
 	cql.cluster.ProtoVersion = 3
 
+	//cql.cluster.Keyspace = cassandraKeySpace
 	//defer cql.Session.Close()
-
 
 	if err != nil {
 		fmt.Println("error")
