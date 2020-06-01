@@ -46,7 +46,7 @@ func NewCqlConnection() *Cassandra {
 
 	if err != nil {
 		fmt.Println("error")
-		log.Fatal("error in creating session of casssandra..", err)
+		log.Fatal("error in creating session of cassandra..", err)
 	}
 
 	return &cql
