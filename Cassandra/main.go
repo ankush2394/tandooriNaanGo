@@ -5,6 +5,7 @@ import (
 	"github.com/gocql/gocql"
 	"log"
 	"sync"
+	"tandoorinaan/golang/tandoorinaan-api/Config/local"
 	"time"
 )
 
@@ -30,15 +31,15 @@ func NewCqlConnection() *Cassandra {
 
 	var err error
 	cql := Cassandra{}
-	cql.cluster = gocql.NewCluster("127.0.0.1") //contains list of cassandra machines in a cluster...
-	cql.cluster.Consistency = gocql.One                //only one node in cluster
+
+	localEnv := getEnvironment()
+	clusterHostFromConfig := localEnv.Database.Host
+	cql.cluster = gocql.NewCluster(clusterHostFromConfig)  //contains list of cassandra machines in a cluster...
+	cql.cluster.Consistency = gocql.One                   //only one node in cluster
 	cql.cluster.Timeout = 2000 * time.Millisecond
 	cql.cluster.ConnectTimeout = 2000 * time.Millisecond
 	cql.Session, err = cql.cluster.CreateSession()
 	cql.cluster.ProtoVersion = 3
-
-	//cql.cluster.Keyspace = cassandraKeySpace
-	//defer cql.Session.Close()
 
 	if err != nil {
 		fmt.Println("error")
@@ -46,4 +47,8 @@ func NewCqlConnection() *Cassandra {
 	}
 
 	return &cql
+}
+
+func getEnvironment() *local.Config{
+	return local.Instance()
 }
