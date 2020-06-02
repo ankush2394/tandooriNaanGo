@@ -25,14 +25,12 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("invalid user id  ...")
 	}
 
-	var  desc,name string
-	iter := cql.Session.Query("select about_me,first_name from user.profile where id = ?", userId).Iter()
-	iter.Scan(&desc, &name)
+	userProfile := getUserProfileInfo(userId)
 
 	up := Profile{
-		Name:   	name,
-		UserId:  	userId,
-		Desc: 		desc,
+		Name:   	userProfile.Name,
+		UserId:  	userProfile.UserId,
+		Desc: 		userProfile.Desc,
 	}
 	w.WriteHeader(200)
 	err = json.NewEncoder(w).Encode(up)
@@ -40,4 +38,18 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("error encoding ")
 	}
 
+}
+
+func getUserProfileInfo(userId int) Profile {
+
+	var  desc,name string
+	iter := cql.Session.Query("select about_me,first_name from user.profile where id = ?", userId).Iter()
+	iter.Scan(&desc, &name)
+
+	up := Profile{
+		Name:   name,
+		UserId: userId,
+		Desc:   desc,
+	}
+	return up
 }
