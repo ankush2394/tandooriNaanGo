@@ -2,13 +2,12 @@ package Redis
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
-	redis_cache_addr       = "127.0.0.1:6379"//os.Getenv("TRENDING_CACHE_ADDR")
+	redis_cache_addr       = "127.0.0.1:6379"
 	RedisClient            *redis.Client
 	MaxConnection          = 10
 )
@@ -28,7 +27,7 @@ func init() {
 	RedisClient = redis.NewClient(&redisOption)
 	var ctx context.Context
 	pong , err := RedisClient.Ping(ctx).Result()
-	fmt.Println(err, pong)
+	log.Info(err, pong)
 }
 
 func GetInstance() *redis.Client {

@@ -12,7 +12,6 @@ import (
 	"tandoorinaan/golang/tandoorinaan-api/Redis"
 )
 
-//json.unmarshal is used to convert byte array data into struct field......
 
 type Profile struct {
 	Name 	string	`json:"name"`
