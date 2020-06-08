@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,9 +37,23 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 	res,err := redisClient.Get(ctx,userProfileKey).Result()
 	if err != nil || strings.EqualFold(res,"") {
 		userProfile = getUserProfileInfo(userId)
-		//add redisClient.Set(ctx, userProfileKey, userProfile, 0)
+		redisClient.Set(ctx, userProfileKey, userProfile, 3600)
+
 	} else {
-		fmt.Println(res)
+		res, err := redisClient.Get(ctx, userProfileKey).Result()
+		if err != nil {
+			log.Info("error getting from redis..", err)
+			w.WriteHeader(404)
+			json.NewEncoder(w).Encode("we are trying to up the reids ...")
+			return
+		} else {
+			err := json.Unmarshal([]byte(res), &userProfile)
+			if err != nil {
+				log.Info("error in Unmarshal..", err)
+				w.WriteHeader(404)
+				return
+			}
+		}
 	}
 
 	up := Profile{
@@ -56,7 +70,7 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUserProfileRedisKey(userId int) string {
-	return fmt.Sprintf("user_profile_%d",userId)
+	return fmt.Sprintf("user_profile_%s",strconv.Itoa(userId))
 }
 
 func getUserProfileInfo(userId int) Profile {
