@@ -3,7 +3,7 @@ package Cassandra
 import (
 	"fmt"
 	"github.com/gocql/gocql"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 	"tandoorinaan/golang/tandoorinaan-api/Config/local"
 	"time"
@@ -40,6 +40,7 @@ func NewCqlConnection() *Cassandra {
 	cql.cluster.ConnectTimeout = 2000 * time.Millisecond
 	cql.Session, err = cql.cluster.CreateSession()
 	cql.cluster.ProtoVersion = 3
+	log.Info("cassandra address is ", clusterHostFromConfig)
 
 	if err != nil {
 		fmt.Println("error")

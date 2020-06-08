@@ -1,11 +1,15 @@
 package User
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
+	"tandoorinaan/golang/tandoorinaan-api/Redis"
 )
 
 //json.unmarshal is used to convert byte array data into struct field......
@@ -18,6 +22,10 @@ type Profile struct {
 
 func GetProfile(w http.ResponseWriter, r *http.Request) {
 
+	var ctx context.Context
+	redisClient := Redis.GetInstance()
+	var userProfile Profile
+
 	vars := mux.Vars(r)
 	userId,err := strconv.Atoi(vars["user_id"])
 	if err != nil {
@@ -25,7 +33,14 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("invalid user id  ...")
 	}
 
-	userProfile := getUserProfileInfo(userId)
+	userProfileKey := getUserProfileRedisKey(userId)
+	res,err := redisClient.Get(ctx,userProfileKey).Result()
+	if err != nil || strings.EqualFold(res,"") {
+		userProfile = getUserProfileInfo(userId)
+		//add redisClient.Set(ctx, userProfileKey, userProfile, 0)
+	} else {
+		fmt.Println(res)
+	}
 
 	up := Profile{
 		Name:   	userProfile.Name,
@@ -38,6 +53,10 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("error encoding ")
 	}
 
+}
+
+func getUserProfileRedisKey(userId int) string {
+	return fmt.Sprintf("user_profile_%d",userId)
 }
 
 func getUserProfileInfo(userId int) Profile {
